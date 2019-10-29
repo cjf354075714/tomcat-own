@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--Configuration 代表配置文件的跟节点，status 表示日志的打印等级，意思就是 Log4j2 本身的日志打印等级，一般来说是不需要看的，所以设置为 DEBUG 以上的等级就行-->
+<!--monitorinterval 表示日志框架自动检测配置文件的时间间隔，比如修改了配置文件，过多久才会生效。单位为 s 最小为 5s-->
+<Configuration xmlns="http://logging.apache.org/log4j/2.0/config" status="WARN" strict="false">
+    <Properties>
+        <Property name="traceFilepath">logs/trace/log.log</Property>
+        <Property name="debugFilepath">logs/debug/log.log</Property>
+        <Property name="infoFilepath">logs/info/log.log</Property>
+        <Property name="warnFilepath">logs/warn/log.log</Property>
+        <Property name="errorFilepath">logs/error/log.log</Property>
+    </Properties>
+    <!--Appenders 里面配置一个日志信息的去向，这里配置了一个 Console 去向-->
+    <Appenders>
+        <!--Console 表示这是一个控制台日志去向，除了名字这个属性以外，还有 target 表示日志输出的工具-->
+        <Console name="console" target="SYSTEM_OUT">
+            <!--日志输出格式-->
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} %C %M %L - %msg%n"/>
+        </Console>
+        <!--指定日志文件，包括格式，和自动转换压缩等-->
+        <!--配置了一个 trace 等级级别的日志输出文件路径-->
+        <!--RollingRandomAccessFile 和 RollingFile 的区别是什么-->
+        <RollingFile name="rooLingTraceFile" fileName="${traceFilepath}" filePattern="logs/trace/$${date:yyyy-MM}/log4j2-%d-%i.log.gz">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} %C %M %L - %msg%n"/>
+            <!--Policies 策略器，表示什么方法新建一个新的日志文件：基于时间的滚动策略，几个小时就创建新的日志文件 TimeBasedTriggeringPolicy-->
+            <!--或者达到数据量之后，就新建日志文件 SizeBasedTriggeringPolicy-->
+            <Policies>
+                <SizeBasedTriggeringPolicy size="1024KB"/>
+<!--                <TimeBasedTriggeringPolicy interval=""/>-->
+            </Policies>
+            <!--DefaultRolloverStrategy 指定该文件夹下有多少个日志文件之后，就删除旧的日志文件，创建新的日志文件-->
+<!--            <DefaultRolloverStrategy max="20"/>-->
+            <!--Filters 的作用就是根据日志的等级，限制日志的执行政策：ACCEPT 接收、DENY 拒绝、NEUTRAL 不做任何操作-->
+            <Filters>
+                <!--这里就定义了一个 TRACE 级别的日志过滤器，onMatch = "ACCEPT" 表示与这个等级相等或者比这个等级大-->
+                <!--的等级就执行接收操作，onMismatch = "DENY" 表示比这个等级小的，就直接拒绝-->
+
+                <!--这里第一个就代表着 debug 包括他自己以上的日志就拒绝，以下的就打印-->
+                <!--第二个表示 trace 以上包括它自己的就接收，以下的就拒绝-->
+                <ThresholdFilter level="DEBUG" onMatch="DENY" onMismatch="ACCEPT"/>
+                <ThresholdFilter level="TRACE" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+        </RollingFile>
+
+        <RollingRandomAccessFile  name="rooLingDebugFile" fileName="${debugFilepath}" filePattern="logs/debug/$${date:yyyy-MM}/log4j2-%d-%i.log.gz">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} %C %M %L - %msg%n"/>
+            <!--Policies 策略器，表示什么方法新建一个新的日志文件：基于时间的滚动策略，几个小时就创建新的日志文件 TimeBasedTriggeringPolicy-->
+            <!--或者达到数据量之后，就新建日志文件 SizeBasedTriggeringPolicy-->
+            <Policies>
+                <SizeBasedTriggeringPolicy size="1024KB"/>
+                <!--                <TimeBasedTriggeringPolicy interval=""/>-->
+            </Policies>
+            <!--DefaultRolloverStrategy 指定该文件夹下有多少个日志文件之后，就删除旧的日志文件，创建新的日志文件-->
+            <!--            <DefaultRolloverStrategy max="20"/>-->
+            <!--Filters 的作用就是根据日志的等级，限制日志的执行政策：ACCEPT 接收、DENY 拒绝、NEUTRAL 不做任何操作-->
+            <Filters>
+                <!--这里就定义了一个 TRACE 级别的日志过滤器，onMatch = "ACCEPT" 表示与这个等级相等或者比这个等级大-->
+                <!--的等级就执行接收操作，onMismatch = "DENY" 表示比这个等级小的，就直接拒绝-->
+                
+                <!--一个等级的日志输出，需要按照先拒绝后接收的策略-->
+                <!--比如，这里只获取 debug 等级的日志，应该先拒绝 debug 等级以上 info 的日志，比它低的就不管-->
+                <!--再接收该等级包括该等级以上的日志，拒绝该等级以下的日志输出-->
+                <ThresholdFilter level="INFO" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+        </RollingRandomAccessFile>
+
+        <RollingRandomAccessFile  name="rooLingInfoFile" fileName="${infoFilepath}" filePattern="logs/info/$${date:yyyy-MM}/log4j2-%d-%i.log.gz">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} %C %M %L - %msg%n"/>
+            <!--Policies 策略器，表示什么方法新建一个新的日志文件：基于时间的滚动策略，几个小时就创建新的日志文件 TimeBasedTriggeringPolicy-->
+            <!--或者达到数据量之后，就新建日志文件 SizeBasedTriggeringPolicy-->
+            <Policies>
+                <SizeBasedTriggeringPolicy size="1024KB"/>
+                <!--                <TimeBasedTriggeringPolicy interval=""/>-->
+            </Policies>
+            <!--DefaultRolloverStrategy 指定该文件夹下有多少个日志文件之后，就删除旧的日志文件，创建新的日志文件-->
+            <!--            <DefaultRolloverStrategy max="20"/>-->
+            <!--Filters 的作用就是根据日志的等级，限制日志的执行政策：ACCEPT 接收、DENY 拒绝、NEUTRAL 不做任何操作-->
+            <Filters>
+                <!--这里就定义了一个 TRACE 级别的日志过滤器，onMatch = "ACCEPT" 表示与这个等级相等或者比这个等级大-->
+                <!--的等级就执行接收操作，onMismatch = "DENY" 表示比这个等级小的，就直接拒绝-->
+
+                <!--一个等级的日志输出，需要按照先拒绝后接收的策略-->
+                <!--比如，这里只获取 debug 等级的日志，应该先拒绝 debug 等级以上 info 的日志，比它低的就不管-->
+                <!--再接收该等级包括该等级以上的日志，拒绝该等级以下的日志输出-->
+                <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+        </RollingRandomAccessFile>
+
+        <RollingRandomAccessFile  name="rooLingWarnFile" fileName="${warnFilepath}" filePattern="logs/warn/$${date:yyyy-MM}/log4j2-%d-%i.log.gz">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} %C %M %L - %msg%n"/>
+            <!--Policies 策略器，表示什么方法新建一个新的日志文件：基于时间的滚动策略，几个小时就创建新的日志文件 TimeBasedTriggeringPolicy-->
+            <!--或者达到数据量之后，就新建日志文件 SizeBasedTriggeringPolicy-->
+            <Policies>
+                <SizeBasedTriggeringPolicy size="1024KB"/>
+                <!--                <TimeBasedTriggeringPolicy interval=""/>-->
+            </Policies>
+            <!--DefaultRolloverStrategy 指定该文件夹下有多少个日志文件之后，就删除旧的日志文件，创建新的日志文件-->
+            <!--            <DefaultRolloverStrategy max="20"/>-->
+            <!--Filters 的作用就是根据日志的等级，限制日志的执行政策：ACCEPT 接收、DENY 拒绝、NEUTRAL 不做任何操作-->
+            <Filters>
+                <!--这里就定义了一个 TRACE 级别的日志过滤器，onMatch = "ACCEPT" 表示与这个等级相等或者比这个等级大-->
+                <!--的等级就执行接收操作，onMismatch = "DENY" 表示比这个等级小的，就直接拒绝-->
+
+                <!--一个等级的日志输出，需要按照先拒绝后接收的策略-->
+                <!--比如，这里只获取 debug 等级的日志，应该先拒绝 debug 等级以上 info 的日志，比它低的就不管-->
+                <!--再接收该等级包括该等级以上的日志，拒绝该等级以下的日志输出-->
+                <ThresholdFilter level="ERROR" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+        </RollingRandomAccessFile>
+
+        <RollingRandomAccessFile  name="rooLingErrorFile" fileName="${errorFilepath}" filePattern="logs/error/$${date:yyyy-MM}/log4j2-%d-%i.log.gz">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} %C %M %L - %msg%n"/>
+            <!--Policies 策略器，表示什么方法新建一个新的日志文件：基于时间的滚动策略，几个小时就创建新的日志文件 TimeBasedTriggeringPolicy-->
+            <!--或者达到数据量之后，就新建日志文件 SizeBasedTriggeringPolicy-->
+            <Policies>
+                <SizeBasedTriggeringPolicy size="1024KB"/>
+                <!--                <TimeBasedTriggeringPolicy interval=""/>-->
+            </Policies>
+            <!--DefaultRolloverStrategy 指定该文件夹下有多少个日志文件之后，就删除旧的日志文件，创建新的日志文件-->
+            <!--            <DefaultRolloverStrategy max="20"/>-->
+            <!--Filters 的作用就是根据日志的等级，限制日志的执行政策：ACCEPT 接收、DENY 拒绝、NEUTRAL 不做任何操作-->
+            <Filters>
+                <!--这里就定义了一个 TRACE 级别的日志过滤器，onMatch = "ACCEPT" 表示与这个等级相等或者比这个等级大-->
+                <!--的等级就执行接收操作，onMismatch = "DENY" 表示比这个等级小的，就直接拒绝-->
+
+                <!--一个等级的日志输出，需要按照先拒绝后接收的策略-->
+                <!--比如，这里只获取 debug 等级的日志，应该先拒绝 debug 等级以上 info 的日志，比它低的就不管-->
+                <!--再接收该等级包括该等级以上的日志，拒绝该等级以下的日志输出-->
+                <ThresholdFilter level="FATAL" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+        </RollingRandomAccessFile>
+    </Appenders>
+    <!--Loggers 与 Appenders 相配合使用，Appenders 指定有哪些日志去向，包括控制台或者文件-->
+    <!--Loggers 指定哪个 Appender 的日志的等级，比如控制台需要拦截 TRACE 等级以上的，文件只需要拦截 WARN 等级以上的-->
+    <Loggers>
+        <!--level 表示等级-->
+        <!-- Logger 节点是用于配置单独的类或者包日志输出管理，比如我想过滤掉某个包下的所有日志打印-->
+        <!--就直接在这里新增一个 Logger，指定该包名和日志等级，但是普通指定输出或者 root 节点相重复-->
+        <!--不管 root 配置的路径是什么，只要符合了单独配置 logger 的等级，就会输出两份，在 logger 上设置 additivity = false 来避免-->
+        <Logger name="com.cqu.learn.utils.log.log4j2.Log4j2Test" level="TRACE" additivity="false">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="rooLingTraceFile"/>
+            <AppenderRef ref="rooLingDebugFile"/>
+            <AppenderRef ref="rooLingInfoFile"/>
+            <AppenderRef ref="rooLingWarnFile"/>
+            <AppenderRef ref="rooLingErrorFile"/>
+        </Logger>
+        <!--Root 节点是所有 Logger 节点的父节点，将会处理所有正常的日志打印-->
+        <Root level="TRACE">
+            <!--ref 表示它和谁想关联-->
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="rooLingTraceFile"/>
+            <AppenderRef ref="rooLingDebugFile"/>
+            <AppenderRef ref="rooLingInfoFile"/>
+            <AppenderRef ref="rooLingWarnFile"/>
+            <AppenderRef ref="rooLingErrorFile"/>
+        </Root>
+    </Loggers>
+</Configuration>
