@@ -20,5 +20,8 @@ public abstract class ELContext {
     // 是否解析的标记位
     private boolean resolved;
 
+    public Locale getLocale() {
+        return this.locale;
+    }
 
 }
