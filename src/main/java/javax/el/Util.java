@@ -1,8 +1,5 @@
 package javax.el;
 
-import sun.util.resources.cldr.en.TimeZoneNames_en_PK;
-
-import java.lang.ref.WeakReference;
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.MissingResourceException;

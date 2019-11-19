@@ -1,8 +1,5 @@
 package javax.el;
 
-import sun.misc.Cache;
-import sun.misc.Regexp;
-
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.security.AccessController;
