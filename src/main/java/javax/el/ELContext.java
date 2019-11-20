@@ -3,6 +3,7 @@ package javax.el;
 import javax.el.util.Util;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * @auther Feng
@@ -15,8 +16,15 @@ public abstract class ELContext {
     // 属性是否被"解决"的标志位？
     private boolean resolved;
 
+    // 容器所拥有的本地对象
+    private Locale locale;
+
     // property 对象，被解析时所触发的监听器
     private List<EvaluationListener> listeners = new ArrayList<>();
+
+    public Locale getLocale() {
+        return this.locale;
+    }
 
     public void setPropertyResolved(boolean resolved) {
         this.resolved = resolved;
