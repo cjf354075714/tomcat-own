@@ -19,28 +19,27 @@ public abstract class ELResolver {
 
     /**
      * @param context 当前“评价”的 EL 表达式容器
-     * @param base 将在该对象上找到某些属性
-     * @param property 返回值的所属对象
+     * @param base 数组对象
+     * @param property 数组索引值
      * @return 提供的 property 的值
      * @throws NullPointerException 如果提供的 context 是 null 的话，将会报出空指针异常
      * @throws PropertyNotFoundException 如果 base/property 组合
      * 并不能被 resolver 所解析，将报该异常
-     *
      */
     public abstract Object getValue(ELContext context,
                                     Object base, Object property);
 
     /**
-     * 根据 value 设置值
+     * 该方法，就是将 property 转化为一个整性索引，然后将 value 设置到 base 这个数组中
      * @param context ELContext
-     * @param base Object
-     * @param property Object
-     * @param value 被设置的值
+     * @param base 数组对象
+     * @param property 数组索引
+     * @param value 数组中的值
      */
     public abstract void setValue(ELContext context, Object base, Object property, Object value);
 
     /**
-     * 与 getValue 相似，返回类型
+     * 获取 base 这个数组的基本构成对象的类型，比如 int[] 数组，将返回 Integer 这个对象
      * @param context 当前的 ELContext
      * @param base 基础类
      * @param property 属性对象

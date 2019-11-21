@@ -1,6 +1,7 @@
 package javax.el.util;
 
 import javax.el.ELContext;
+import javax.swing.text.html.parser.TagElement;
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.MissingResourceException;
@@ -54,5 +55,45 @@ public class Util {
         } catch (MissingResourceException e) {
             return "在环境" + locale.getDisplayName() + "下，找不到键为：'" + name + "'的值";
         }
+    }
+
+
+    /**
+     * 返回 target 是不是 src 的父类，注意，这是通过类的方式去判断的
+     * @param src 是否是子类
+     * @param target 是否是父类
+     * @return 是否是
+     *
+     */
+    public static boolean isAssignableFrom(Class<?> src, Class<?> target) {
+        if (null == src) {
+            return true;
+        }
+        Class<?> targetClass = null;
+        // isPrimitive() 表示是不是基础的数据类型：byte、short、int、long、double、float等
+        // 先判断是否是基本类型，因为，基本类型的 Class 是不能够与 Object、Number 这些类对象
+        // 进行继承判断的，所以需要事先转化为对象类型，就是装箱
+        if (target.isPrimitive()) {
+            if (target == Boolean.TYPE) {
+                targetClass = Boolean.class;
+            } else if (target == Character.class) {
+                targetClass = Character.class;
+            } else if (target == Byte.TYPE) {
+                targetClass = Byte.class;
+            } else if (target == Short.TYPE) {
+                targetClass = Short.class;
+            } else if (target == Integer.TYPE) {
+                targetClass = Integer.class;
+            } else if (target == Long.TYPE) {
+                targetClass = Long.class;
+            } else if (target == Float.TYPE) {
+                targetClass = Float.class;
+            } else {
+                targetClass = Double.class;
+            }
+        } else {
+            targetClass = target;
+        }
+        return targetClass.isAssignableFrom(src);
     }
 }

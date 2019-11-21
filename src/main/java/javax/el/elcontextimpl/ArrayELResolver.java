@@ -53,9 +53,10 @@ public class ArrayELResolver extends ELResolver {
             }
             int idx = coerce(property);
             checkBounds(base, idx);
-            if (null != value) {
-
+            if (null != value && !Util.isAssignableFrom(value.getClass(), base.getClass().getComponentType())) {
+                throw new ClassCastException(Util.message(context, "objectNotAssignable", value.getClass().getName(), base.getClass().getComponentType().getName()));
             }
+            Array.set(base, idx, value);
         }
 
     }
