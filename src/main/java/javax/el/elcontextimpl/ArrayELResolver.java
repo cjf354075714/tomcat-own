@@ -81,7 +81,17 @@ public class ArrayELResolver extends ELResolver {
 
     @Override
     public boolean isReadOnly(ELContext context, Object base, Object property) {
-        return false;
+        Objects.requireNonNull(context);
+        if (base != null && base.getClass().isArray()) {
+            context.setPropertyResolved(base, property);
+            try {
+                int idx = coerce(property);
+                checkBounds(base, idx);
+            } catch (IllegalArgumentException e) {
+                // ignore
+            }
+        }
+        return this.readOnly;
     }
 
     @Override
@@ -91,6 +101,9 @@ public class ArrayELResolver extends ELResolver {
 
     @Override
     public Class<?> getCommonPropertyType(ELContext context, Object base) {
+        if (null != base && base.getClass().isArray()) {
+            return Integer.class;
+        }
         return null;
     }
 
